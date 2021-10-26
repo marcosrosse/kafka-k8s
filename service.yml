@@ -1,0 +1,24 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: kafka
+  namespace: kafka
+  labels:
+    app: kafka
+    app.kubernetes.io/component: kafka
+    app.kubernetes.io/instance: kafka
+    app.kubernetes.io/part-of: kafka
+    app.openshift.io/runtime-version: latest
+spec:
+  ports:
+    - name: 9092-tcp
+      protocol: TCP
+      port: 9092
+    - name: 5556-tcp
+      port: 5556
+  selector:
+    app: kafka
+  type: ClusterIP
+  sessionAffinity: None
+status:
+  loadBalancer: {}

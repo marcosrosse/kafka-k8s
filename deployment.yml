@@ -1,0 +1,43 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: kafka
+  namespace: kafka
+spec:
+  template:
+    metadata:
+      labels:
+        app: kafka
+        name: kafka
+    spec:
+      volumes:
+        - name: kafka-data
+          persistentVolumeClaim:
+            claimName: kafka-pvc
+      containers:
+        - name: kafka
+          image: bitnami/kafka:latest
+          ports:
+            - containerPort: 9092
+            - containerPort: 5556
+          env:
+            - name: KAFKA_ZOOKEEPER_CONNECT
+              value: zookeeper.kafka.svc:2181
+            - name: ALLOW_PLAINTEXT_LISTENER
+              value: "yes"
+            - name: METRICS_JMX_ENABLED
+              value: "true"
+            - name: KAFKA_METRICS_ENABLED
+              value: "true"
+            - name: KAFKA_JMX_OPTS
+              value: "-Dcom.sun.management.jmxremote -Djava.rmi.server.hostname=0.0.0.0 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.port=5556 -Dcom.sun.management.jmxremote.local.only=false"
+          volumeMounts:
+          - mountPath: /bitnami/kafka/data
+            name: kafka-data
+  replicas: 1
+  selector:
+    matchLabels:
+      name: kafka
+  revisionHistoryLimit: 1
+  strategy:
+    type: RollingUpdate
