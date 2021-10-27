@@ -18,7 +18,7 @@ spec:
          emptyDir: {} #
       initContainers: #
         - name: kafka-exporter #
-          image: marcosrosse/prometheus-jmx-exporter-kubernetes:0.1.0 #
+          image: marcosrosse/prometheus-jmx-exporter-kubernetes:latest #
           env: #
             - name: SHARED_VOLUME_PATH #
               value: /shared-volume #
