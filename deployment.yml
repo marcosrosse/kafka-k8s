@@ -18,7 +18,7 @@ spec:
          emptyDir: {} #
       initContainers: #
         - name: kafka-exporter #
-          image: spdigital/prometheus-jmx-exporter-kubernetes:0.3.1 #
+          image: marcosrosse/prometheus-jmx-exporter-kubernetes:0.1.0 #
           env: #
             - name: SHARED_VOLUME_PATH #
               value: /shared-volume #
@@ -37,7 +37,7 @@ spec:
             - name: ALLOW_PLAINTEXT_LISTENER
               value: "yes"
             - name: KAFKA_OPTS #
-              value: -javaagent:/shared-volume/jmx_prometheus_javaagent.jar=5556:/shared-volume/configs/kafka-config.yaml #
+              value: -javaagent:/shared-volume/jmx_prometheus_javaagent.jar=5556:/shared-volume/configs/kafka-config.yml #
           volumeMounts: #
           - mountPath: /shared-volume #
             name: shared-volume #
