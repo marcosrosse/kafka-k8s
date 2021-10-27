@@ -3,6 +3,9 @@ apiVersion: apps/v1
 metadata:
   name: kafka
   namespace: kafka
+  annotations:
+    "prometheus.io/scrape": "true"
+    "prometheus.io/port": "19000"
 spec:
   template:
     metadata:
@@ -11,9 +14,17 @@ spec:
         name: kafka
     spec:
       volumes:
-        - name: kafka-data
-          persistentVolumeClaim:
-            claimName: kafka-pvc
+       - name: shared-volume
+         emptyDir: {}
+      initContainers:
+        - name: prometheus-jmx-exporter
+          image: spdigital/prometheus-jmx-exporter-kubernetes:0.3.1
+          env:
+            - name: SHARED_VOLUME_PATH
+              value: /shared-volume
+          volumeMounts:
+            - mountPath: /shared-volume
+              name: shared-volume
       containers:
         - name: kafka
           image: bitnami/kafka:latest
@@ -29,11 +40,13 @@ spec:
               value: "true"
             - name: KAFKA_METRICS_ENABLED
               value: "true"
-            - name: KAFKA_JMX_OPTS
-              value: "-Dcom.sun.management.jmxremote -Djava.rmi.server.hostname=0.0.0.0 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.port=5556 -Dcom.sun.management.jmxremote.local.only=false"
+            - name: JMX_PORT
+              value: "5556"
+            - name: KAFKA_OPTS
+              value: -javaagent:/shared-volume/jmx_prometheus_javaagent.jar=19000:/shared-volume/configs/kafka-config.yaml
           volumeMounts:
-          - mountPath: /bitnami/kafka/data
-            name: kafka-data
+          - mountPath: /shared-volume
+            name: shared-volume
   replicas: 1
   selector:
     matchLabels:
